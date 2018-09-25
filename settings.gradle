@@ -1,0 +1,6 @@
+include ':app'
+include ':datakitapi'
+include ':commons', ":core"
+project(':datakitapi').projectDir=new File('../mCerebrum-DataKitAPI/datakitapi')
+project(':commons').projectDir=new File('../mCerebrum-Library/commons')
+project(':core').projectDir=new File('../mCerebrum-Library/core')
