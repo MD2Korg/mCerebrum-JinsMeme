@@ -1,0 +1,387 @@
+[
+  {
+    "type": "EYE_MOVEMENT_UP",
+    "application": {
+      "id": "org.md2k.mcerebrum.jinsmeme",
+      "metadata": {
+        "NAME": "JinsMeme",
+        "DESCRIPTION": "Collects data from the JINSMeme Eyeglass"
+      }
+    },
+    "dataDescriptors": [
+      {
+        "DATA_TYPE": "double",
+        "NAME": "Eye Movement (UP)",
+        "DESCRIPTION": "Eye Movement up. 0: None, 1:Movement detection—Small, 2:Movement detection—Medium, 3:Reverse movement detection—Large, 4:Reverse movement detection—Extra-large (FW 1.0.7 only)",
+        "MAX_VALUE": "4",
+        "MIN_VALUE": "0",
+        "UNIT": "enum"
+      }
+    ],
+    "platform": {
+      "metadata": {
+        "NAME": "JinsMeme"
+      },
+      "type": "JINS_MEME"
+    },
+    "metadata": {
+      "DATA_TYPE": "org.md2k.datakitapi.datatype.DataTypeDoubleArray",
+      "NAME": "Eye Movement (up)",
+      "DESCRIPTION": "Eye Movement up. 0: None, 1:Movement detection—Small, 2:Movement detection—Medium, 3:Reverse movement detection—Large, 4:Reverse movement detection—Extra-large (FW 1.0.7 only)"
+    }
+  },
+  {
+    "type": "EYE_MOVEMENT_DOWN",
+    "application": {
+      "id": "org.md2k.mcerebrum.jinsmeme",
+      "metadata": {
+        "NAME": "JinsMeme",
+        "DESCRIPTION": "Collects data from the JINSMeme Eyeglass"
+      }
+    },
+    "dataDescriptors": [
+      {
+        "DATA_TYPE": "double",
+        "NAME": "Eye Movement (DOWN)",
+        "DESCRIPTION": "Eye Movement down. 0: None, 1:Movement detection—Small, 2:Movement detection—Medium, 3:Reverse movement detection—Large, 4:Reverse movement detection—Extra-large (FW 1.0.7 only)",
+        "MAX_VALUE": "4",
+        "MIN_VALUE": "0",
+        "UNIT": "enum"
+      }
+    ],
+    "platform": {
+      "metadata": {
+        "NAME": "JinsMeme"
+      },
+      "type": "JINS_MEME"
+    },
+    "metadata": {
+      "DATA_TYPE": "org.md2k.datakitapi.datatype.DataTypeDoubleArray",
+      "NAME": "Eye Movement (down)",
+      "DESCRIPTION": "Eye Movement down. 0: None, 1:Movement detection—Small, 2:Movement detection—Medium, 3:Reverse movement detection—Large, 4:Reverse movement detection—Extra-large (FW 1.0.7 only)"
+    }
+  },
+  {
+    "type": "EYE_MOVEMENT_LEFT",
+    "application": {
+      "id": "org.md2k.mcerebrum.jinsmeme",
+      "metadata": {
+        "NAME": "JinsMeme",
+        "DESCRIPTION": "Collects data from the JINSMeme Eyeglass"
+      }
+    },
+    "dataDescriptors": [
+      {
+        "DATA_TYPE": "double",
+        "NAME": "Eye Movement (left)",
+        "DESCRIPTION": "Eye Movement left. 0: None, 1:Movement detection—Small, 2:Movement detection—Medium, 3:Reverse movement detection—Large, 4:Reverse movement detection—Extra-large (FW 1.0.7 only)",
+        "MAX_VALUE": "4",
+        "MIN_VALUE": "0",
+        "UNIT": "enum"
+      }
+    ],
+    "platform": {
+      "metadata": {
+        "NAME": "JinsMeme"
+      },
+      "type": "JINS_MEME"
+    },
+    "metadata": {
+      "DATA_TYPE": "org.md2k.datakitapi.datatype.DataTypeDoubleArray",
+      "NAME": "Eye Movement (left)",
+      "DESCRIPTION": "Eye Movement left. 0: None, 1:Movement detection—Small, 2:Movement detection—Medium, 3:Reverse movement detection—Large, 4:Reverse movement detection—Extra-large (FW 1.0.7 only)"
+    }
+  },
+  {
+    "type": "EYE_MOVEMENT_RIGHT",
+    "application": {
+      "id": "org.md2k.mcerebrum.jinsmeme",
+      "metadata": {
+        "NAME": "JinsMeme",
+        "DESCRIPTION": "Collects data from the JINSMeme Eyeglass"
+      }
+    },
+    "dataDescriptors": [
+      {
+        "DATA_TYPE": "double",
+        "NAME": "Eye Movement (right)",
+        "DESCRIPTION": "Eye Movement right. 0: None, 1:Movement detection—Small, 2:Movement detection—Medium, 3:Reverse movement detection—Large, 4:Reverse movement detection—Extra-large (FW 1.0.7 only)",
+        "MAX_VALUE": "4",
+        "MIN_VALUE": "0",
+        "UNIT": "enum"
+      }
+    ],
+    "platform": {
+      "metadata": {
+        "NAME": "JinsMeme"
+      },
+      "type": "JINS_MEME"
+    },
+    "metadata": {
+      "DATA_TYPE": "org.md2k.datakitapi.datatype.DataTypeDoubleArray",
+      "NAME": "Eye Movement (right)",
+      "DESCRIPTION": "Eye Movement right. 0: None, 1:Movement detection—Small, 2:Movement detection—Medium, 3:Reverse movement detection—Large, 4:Reverse movement detection—Extra-large (FW 1.0.7 only)"
+    }
+  },
+  {
+    "type": "ACCELEROMETER",
+    "application": {
+      "id": "org.md2k.mcerebrum.jinsmeme",
+      "metadata": {
+        "NAME": "JinsMeme",
+        "DESCRIPTION": "Collects data from the JINSMeme Eyeglass"
+      }
+    },
+    "dataDescriptors": [
+      {
+        "DATA_TYPE": "double",
+        "NAME": "Accelerometer X",
+        "DESCRIPTION": "Acceleration on the x-axis",
+        "MAX_VALUE": "+127",
+        "MIN_VALUE": "-128"
+      },
+      {
+        "DATA_TYPE": "double",
+        "NAME": "Accelerometer Y",
+        "DESCRIPTION": "Acceleration on the y-axis",
+        "MAX_VALUE": "+127",
+        "MIN_VALUE": "-128"
+      },
+      {
+        "DATA_TYPE": "double",
+        "NAME": "Accelerometer Z",
+        "DESCRIPTION": "Acceleration on the z-axis",
+        "MAX_VALUE": "+127",
+        "MIN_VALUE": "-128"
+      }
+    ],
+    "platform": {
+      "metadata": {
+        "NAME": "Jins Meme"
+      },
+      "type": "JINS_MEME"
+    },
+    "metadata": {
+      "DATA_TYPE": "org.md2k.datakitapi.datatype.DataTypeDoubleArray",
+      "NAME": "Accelerometer",
+      "DESCRIPTION": "measures the acceleration applied to the device",
+      "INDEX_DESCRIPTION": "0-x, 1-y, 2-z"
+    }
+  },
+  {
+    "type": "GYROSCOPE",
+    "application": {
+      "id": "org.md2k.mcerebrum.jinsmeme",
+      "metadata": {
+        "NAME": "JinsMeme",
+        "DESCRIPTION": "Collects data from the JINSMeme Eyeglass"
+      }
+    },
+    "dataDescriptors": [
+      {
+        "DATA_TYPE": "double",
+        "NAME": "Gyroscope X",
+        "DESCRIPTION": "Gyroscope on the x-axis"
+      },
+      {
+        "DATA_TYPE": "double",
+        "NAME": "Gyroscope Y",
+        "DESCRIPTION": "Gyroscope on the y-axis"
+      },
+      {
+        "DATA_TYPE": "double",
+        "NAME": "Gyroscope Z",
+        "DESCRIPTION": "Gyroscope on the z-axis"
+      }
+    ],
+    "platform": {
+      "metadata": {
+        "NAME": "Jins Meme"
+      },
+      "type": "JINS_MEME"
+    },
+    "metadata": {
+      "DATA_TYPE": "org.md2k.datakitapi.datatype.DataTypeDoubleArray",
+      "NAME": "Gyroscope",
+      "DESCRIPTION": "measures the gyroscope applied to the device",
+      "INDEX_DESCRIPTION": "0-x, 1-y, 2-z"
+      }
+  },
+  {
+    "type": "BLINK_SPEED",
+    "application": {
+      "id": "org.md2k.mcerebrum.jinsmeme",
+      "metadata": {
+        "NAME": "JinsMeme",
+        "DESCRIPTION": "Collects data from the JINSMeme Eyeglass"
+      }
+    },
+    "dataDescriptors": [
+      {
+        "DATA_TYPE": "double",
+        "NAME": "Blink speed",
+        "DESCRIPTION": "Blink speed",
+        "UNIT": "time"
+      }
+    ],
+    "platform": {
+      "metadata": {
+        "NAME": "JinsMeme"
+      },
+      "type": "JINS_MEME"
+    },
+    "metadata": {
+      "DATA_TYPE": "org.md2k.datakitapi.datatype.DataTypeDoubleArray",
+      "NAME": "Blink Speed",
+      "DESCRIPTION": "Blink speed"
+    }
+  },
+  {
+    "type": "BLINK_STRENGTH",
+    "application": {
+      "id": "org.md2k.mcerebrum.jinsmeme",
+      "metadata": {
+        "NAME": "JinsMeme",
+        "DESCRIPTION": "Collects data from the JINSMeme Eyeglass"
+      }
+    },
+    "dataDescriptors": [
+      {
+        "DATA_TYPE": "double",
+        "NAME": "Blink strength",
+        "DESCRIPTION": "Blink strength",
+        "UNIT": "value"
+      }
+    ],
+    "platform": {
+      "metadata": {
+        "NAME": "JinsMeme"
+      },
+      "type": "JINS_MEME"
+    },
+    "metadata": {
+      "DATA_TYPE": "org.md2k.datakitapi.datatype.DataTypeDoubleArray",
+      "NAME": "Blink strength",
+      "DESCRIPTION": "Blink strength"
+    }
+  },
+  {
+    "type": "WALKING",
+    "application": {
+      "id": "org.md2k.mcerebrum.jinsmeme",
+      "metadata": {
+        "NAME": "JinsMeme",
+        "DESCRIPTION": "Collects data from the JINSMeme Eyeglass"
+      }
+    },
+    "dataDescriptors": [
+      {
+        "DATA_TYPE": "double",
+        "NAME": "Walking",
+        "DESCRIPTION": "Sets the value to true if it detects that your heel hits the ground"
+      }
+    ],
+    "platform": {
+      "metadata": {
+        "NAME": "JinsMeme"
+      },
+      "type": "JINS_MEME"
+    },
+    "metadata": {
+      "DATA_TYPE": "org.md2k.datakitapi.datatype.DataTypeDoubleArray",
+      "NAME": "Walking",
+      "DESCRIPTION": "Sets the value to true if it detects that your heel hits the ground"
+    }
+  },
+  {
+    "type": "NOISE_STATUS",
+    "application": {
+      "id": "org.md2k.mcerebrum.jinsmeme",
+      "metadata": {
+        "NAME": "JinsMeme",
+        "DESCRIPTION": "Collects data from the JINSMeme Eyeglass"
+      }
+    },
+    "dataDescriptors": [
+      {
+        "DATA_TYPE": "double",
+        "NAME": "Noise Status",
+        "DESCRIPTION": "Boolean value about whether the electrooculography sensors have noise or not",
+        "UNIT": "value"
+      }
+    ],
+    "platform": {
+      "metadata": {
+        "NAME": "JinsMeme"
+      },
+      "type": "JINS_MEME"
+    },
+    "metadata": {
+      "DATA_TYPE": "org.md2k.datakitapi.datatype.DataTypeDoubleArray",
+      "NAME": "Noise Status",
+      "DESCRIPTION": "Boolean value about whether the electrooculography sensors have noise or not"
+    }
+  },
+  {
+    "type": "FIT_ERROR",
+    "application": {
+      "id": "org.md2k.mcerebrum.jinsmeme",
+      "metadata": {
+        "NAME": "JinsMeme",
+        "DESCRIPTION": "Collects data from the JINSMeme Eyeglass"
+      }
+    },
+    "dataDescriptors": [
+      {
+        "DATA_TYPE": "double",
+        "NAME": "Fit Error",
+        "DESCRIPTION": "Integer indicating if JINS MEME is being worn correctly. 0: No errors, 1: Left nose-pad placement error, 2: Right nose-pad placement error, 3: Bridge electrode placement error",
+        "MAX_VALUE": "3",
+        "MIN_VALUE": "0",
+        "UNIT": "enum"
+      }
+    ],
+    "platform": {
+      "metadata": {
+        "NAME": "JinsMeme"
+      },
+      "type": "JINS_MEME"
+    },
+    "metadata": {
+      "DATA_TYPE": "org.md2k.datakitapi.datatype.DataTypeDoubleArray",
+      "NAME": "Fit Error",
+      "DESCRIPTION": "Integer indicating if JINS MEME is being worn correctly. 0: No errors, 1: Left nose-pad placement error, 2: Right nose-pad placement error, 3: Bridge electrode placement error"
+    }
+  },
+  {
+    "type": "POWER_LEFT",
+    "application": {
+      "id": "org.md2k.mcerebrum.jinsmeme",
+      "metadata": {
+        "NAME": "JinsMeme",
+        "DESCRIPTION": "Collects data from the JINSMeme Eyeglass"
+      }
+    },
+    "dataDescriptors": [
+      {
+        "DATA_TYPE": "double",
+        "NAME": "Power Left",
+        "DESCRIPTION": "Integer showing remaining battery. 0: Charging battery, 1: Low voltage, 2：Lv2, 3：Lv3, 4：Lv4, 5: Battery fully charged",
+        "MAX_VALUE": "5",
+        "MIN_VALUE": "0",
+        "UNIT": "enum"
+      }
+    ],
+    "platform": {
+      "metadata": {
+        "NAME": "JinsMeme"
+      },
+      "type": "JINS_MEME"
+    },
+    "metadata": {
+      "DATA_TYPE": "org.md2k.datakitapi.datatype.DataTypeDoubleArray",
+      "NAME": "Power Left",
+      "DESCRIPTION": "Integer showing remaining battery. 0: Charging battery, 1: Low voltage, 2：Lv2, 3：Lv3, 4：Lv4, 5: Battery fully charged"
+    }
+  }
+]

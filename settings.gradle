@@ -1,4 +1,4 @@
-include ':app'
+include ':jinsmeme'
 include ':datakitapi'
 include ':commons', ":core"
 project(':datakitapi').projectDir=new File('../mCerebrum-DataKitAPI/datakitapi')

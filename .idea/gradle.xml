@@ -9,7 +9,7 @@
           <set>
             <option value="$PROJECT_DIR$/../mCerebrum-DataKitAPI/datakitapi" />
             <option value="$PROJECT_DIR$" />
-            <option value="$PROJECT_DIR$/app" />
+            <option value="$PROJECT_DIR$/jinsmeme" />
             <option value="$PROJECT_DIR$/../mCerebrum-Library/commons" />
             <option value="$PROJECT_DIR$/../mCerebrum-Library/core" />
           </set>
