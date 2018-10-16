@@ -35,52 +35,46 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.location.LocationManager;
+import android.os.Handler;
 import android.os.IBinder;
 import android.support.v4.app.NotificationCompat;
 import android.support.v4.content.LocalBroadcastManager;
 import android.util.Log;
 import android.util.SparseArray;
 
+import com.jins_jp.meme.MemeConnectListener;
+import com.jins_jp.meme.MemeLib;
+import com.jins_jp.meme.MemeRealtimeData;
+import com.jins_jp.meme.MemeRealtimeListener;
+import com.jins_jp.meme.MemeScanListener;
+import com.jins_jp.meme.MemeStatus;
 import com.orhanobut.logger.Logger;
 
 import org.md2k.datakitapi.datatype.DataType;
-import org.md2k.datakitapi.source.METADATA;
+import org.md2k.datakitapi.datatype.DataTypeDoubleArray;
+import org.md2k.datakitapi.messagehandler.OnConnectionListener;
 import org.md2k.datakitapi.source.datasource.DataSource;
-import org.md2k.datakitapi.source.datasource.DataSourceClient;
 import org.md2k.datakitapi.source.datasource.DataSourceType;
+import org.md2k.datakitapi.time.DateTime;
 import org.md2k.mcerebrum.jinsmeme.configuration.ConfigurationManager;
 import org.md2k.mcerebrum.jinsmeme.datakit.DataKitManager;
-import org.md2k.mcerebrum.jinsmeme.device.DeviceManager;
-import org.md2k.mcerebrum.jinsmeme.device.Sensor;
-import org.md2k.mcerebrum.jinsmeme.device.data_quality.DataQualityManager;
 import org.md2k.mcerebrum.jinsmeme.error.ErrorNotify;
 import org.md2k.mcerebrum.jinsmeme.permission.Permission;
 
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.concurrent.TimeUnit;
-
-import rx.BackpressureOverflow;
 import rx.Observable;
-import rx.Observer;
-import rx.Subscription;
-import rx.functions.Action0;
-import rx.functions.Func1;
-import rx.schedulers.Schedulers;
 
 import static org.md2k.mcerebrum.jinsmeme.ActivitySettings.ACTION_LOCATION_CHANGED;
 
 /**
  * Manages the motion sense service.
  */
-public class ServiceMotionSense extends Service {
+public class ServiceJinsMeme extends Service {
     public static final String INTENT_DATA = "INTENT_DATA";
     private DataKitManager dataKitManager;
-    DeviceManager deviceManager;
-    Subscription subscription;
+    private Device device;
     SparseArray<Summary> summary;
-    DataQualityManager dataQualityManager;
+    private MemeLib memeLib;
+    Handler h;
 
     /**
      * Logs the creation of the service, calls <code>loadListener()</code>, and subscribes an
@@ -89,44 +83,64 @@ public class ServiceMotionSense extends Service {
     @Override
     public void onCreate() {
         super.onCreate();
+        h=new Handler();
         Logger.d("Service: onCreate()...");
         summary = new SparseArray<>();
-        ErrorNotify.removeNotification(ServiceMotionSense.this);
+        device = new Device();
+        ErrorNotify.removeNotification(ServiceJinsMeme.this);
         loadListener();
+        boolean res = Permission.hasPermission(ServiceJinsMeme.this);
+        if (!res) {
+            ErrorNotify.handle(ServiceJinsMeme.this, ErrorNotify.PERMISSION);
+            stopSelf();
+            return;
+        }
+        BluetoothAdapter mBluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
+        res = mBluetoothAdapter.isEnabled();
+        if (!res) {
+            ErrorNotify.handle(ServiceJinsMeme.this, ErrorNotify.BLUETOOTH_OFF);
+            stopSelf();
+            return;
+        }
+        LocationManager locationManager = (LocationManager) ServiceJinsMeme.this.getSystemService(LOCATION_SERVICE);
+        res = (locationManager != null && locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER));
+        if (!res) {
+            ErrorNotify.handle(ServiceJinsMeme.this, ErrorNotify.GPS_OFF);
+            stopSelf();
+            return;
+        }
+        if(!ConfigurationManager.isConfigured()) {
+            ErrorNotify.handle(ServiceJinsMeme.this, ErrorNotify.NOT_CONFIGURED);
+            stopSelf();
+            return;
+        }
+        dataKitManager = new DataKitManager();
 
+        dataKitManager.connect(new OnConnectionListener() {
+            @Override
+            public void onConnected() {
+                memeLib = MemeLib.getInstance();
+                memeLib.setMemeConnectListener(memeConnectListener);
+                String deviceId = ConfigurationManager.getDeviceId();
+                if(memeLib.isScanning()) memeLib.stopScan();
+                memeLib.setAutoConnect(true);
+
+                Log.d("abc"," deviceid="+deviceId+" isconnected = "+memeLib.isConnected());
+                if (memeLib.isConnected()) {
+                    memeLib.startDataReport(memeRealtimeListener);
+                }else {
+                    h.post(r);
+                }
+
+            }
+        });
+/*
         subscription = Observable.just(true)
-                .map(aBoolean -> {
-                    Log.e("abc", "permission");
-                    boolean res = Permission.hasPermission(ServiceMotionSense.this);
-                    if (!res) ErrorNotify.handle(ServiceMotionSense.this, ErrorNotify.PERMISSION);
-                    return res;
-                }).filter(x -> x)
-                .map(aBoolean -> {
-                    BluetoothAdapter mBluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
-                    boolean res = mBluetoothAdapter.isEnabled();
-                    if (!res)
-                        ErrorNotify.handle(ServiceMotionSense.this, ErrorNotify.BLUETOOTH_OFF);
-                    return res;
-                }).filter(x -> x)
-                .map(aBoolean -> {
-                    LocationManager locationManager = (LocationManager) ServiceMotionSense.this.getSystemService(LOCATION_SERVICE);
-                    boolean res = (locationManager != null && locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER));
-                    if (!res) ErrorNotify.handle(ServiceMotionSense.this, ErrorNotify.GPS_OFF);
-                    return res;
-                }).filter(x -> x)
-                .map(aBoolean -> {
-                    ArrayList<DataSource> dataSources = ConfigurationManager.read(ServiceMotionSense.this);
-                    if (dataSources == null || dataSources.size() == 0) {
-                        ErrorNotify.handle(ServiceMotionSense.this, ErrorNotify.NOT_CONFIGURED);
-                        return false;
-                    }
-                    return true;
-                }).filter(x -> x)
                 .flatMap(aBoolean -> {
                     dataKitManager = new DataKitManager();
-                    return dataKitManager.connect(ServiceMotionSense.this).map(res -> {
+                    return dataKitManager.connect(ServiceJinsMeme.this).map(res -> {
                         if (!res)
-                            ErrorNotify.handle(ServiceMotionSense.this, ErrorNotify.DATAKIT_CONNECTION_ERROR);
+                            ErrorNotify.handle(ServiceJinsMeme.this, ErrorNotify.DATAKIT_CONNECTION_ERROR);
                         return res;
                     });
                 }).doOnUnsubscribe(() -> {
@@ -135,14 +149,14 @@ public class ServiceMotionSense extends Service {
                         dataKitManager.disconnect();
                 }).filter(x -> x)
                 .map(aBoolean -> {
-                    ArrayList<DataSource> dataSources = ConfigurationManager.read(ServiceMotionSense.this);
+                    ArrayList<DataSource> dataSources = ConfigurationManager.read(ServiceJinsMeme.this);
                     deviceManager = new DeviceManager();
                     dataQualityManager = new DataQualityManager();
                     if (dataSources == null || dataSources.size() == 0) return false;
                     for (int i = 0; i < dataSources.size(); i++) {
                         DataSourceClient dataSourceClient = dataKitManager.register(dataSources.get(i));
                         if (dataSourceClient == null) {
-                            ErrorNotify.handle(ServiceMotionSense.this, ErrorNotify.DATAKIT_REGISTRATION_ERROR);
+                            ErrorNotify.handle(ServiceJinsMeme.this, ErrorNotify.DATAKIT_REGISTRATION_ERROR);
                             return false;
                         }
 
@@ -161,7 +175,7 @@ public class ServiceMotionSense extends Service {
                     return true;
                 }).filter(x -> x)
                 .flatMap(aBoolean -> {
-                    return Observable.merge(deviceManager.connect(ServiceMotionSense.this), dataQualityManager.getObservable());
+                    return Observable.merge(deviceManager.connect(ServiceJinsMeme.this), dataQualityManager.getObservable());
                 })
                 .doOnUnsubscribe(() -> {
                     Logger.d("Service: doOnUnsubscribe..device manager...disconnecting...");
@@ -212,10 +226,11 @@ public class ServiceMotionSense extends Service {
                             intent.putExtra(DataSource.class.getSimpleName(), dataTemp.get(0).getSensor().getDataSourceClient().getDataSource());
                             intent.putExtra(DataType.class.getSimpleName(), dataTypes);
                             intent.putExtra(Summary.class.getSimpleName(), summary.get(dataTemp.get(0).getSensor().getDataSourceClient().getDs_id()));
-                            LocalBroadcastManager.getInstance(ServiceMotionSense.this).sendBroadcast(intent);
+                            LocalBroadcastManager.getInstance(ServiceJinsMeme.this).sendBroadcast(intent);
 
                         }
 //                        dataKitManager.insert(data.getSensor().getDataSourceClient(), data.getDataType());
+*/
 /*
                         if (data.getSensor().getDataSourceType().equals(DataSourceType.DATA_QUALITY))
                             dataKitManager.setSummary(data.getSensor().getDataSourceClient(), dataQualityManager.getSummary(data));
@@ -233,16 +248,20 @@ public class ServiceMotionSense extends Service {
                         intent.putExtra(DataType.class.getSimpleName(), data.getDataType());
                         intent.putExtra(Summary.class.getSimpleName(), s);
                         LocalBroadcastManager.getInstance(ServiceMotionSense.this).sendBroadcast(intent);
-*/
+*//*
+
                         return Observable.just(data.get(0));
                     }
                 })
-                /*.onBackpressureBuffer(1024, new Action0() {
+                */
+/*.onBackpressureBuffer(1024, new Action0() {
                     @Override
                     public void call() {
                         Logger.e("Device...subscribeConnect()...Data Overflow occurs..after push...drop oldest packet");
                     }
-                }, BackpressureOverflow.ON_OVERFLOW_DROP_OLDEST)*/
+                }, BackpressureOverflow.ON_OVERFLOW_DROP_OLDEST)*//*
+
+*/
 /*
                 .onErrorResumeNext(new Func1<Throwable, Observable<? extends Data>>() {
                     @Override
@@ -262,16 +281,19 @@ public class ServiceMotionSense extends Service {
                         return Observable.error(throwable);
                     }
                 })
-*/
+*//*
+
                 .retryWhen(errors -> errors.flatMap((Func1<Throwable, Observable<?>>) throwable -> {
                     Logger.e("Service: retryWhen()...error=" + throwable.getMessage()+" "+throwable.toString(), throwable);
                     return Observable.just(null);
                 }))
                 .observeOn(Schedulers.newThread())
                 .subscribe(new Observer<Data>() {
-                    /**
+                    */
+/**
                      * Logs the completion of the service, unsubscribes the listener, and stops itself.
-                     */
+                     *//*
+
                     @Override
                     public void onCompleted() {
                         Logger.d("Service -> onCompleted()");
@@ -279,9 +301,11 @@ public class ServiceMotionSense extends Service {
                         stopSelf();
                     }
 
-                    /**
+                    */
+/**
                      * Logs the service's error, unsubscribes the listener, and stops itself.
-                     */
+                     *//*
+
                     @Override
                     public void onError(Throwable e) {
                         Logger.e("Service onError()... e=" + e.getMessage(), e);
@@ -289,14 +313,17 @@ public class ServiceMotionSense extends Service {
                         stopSelf();
                     }
 
-                    /**
+                    */
+/**
                      * Inserts the received data into <code>DataKit</code>.
                      * @param data Data received
-                     */
+                     *//*
+
                     @Override
                     public void onNext(Data data) {
                     }
                 });
+*/
     }
 
     /**
@@ -314,24 +341,19 @@ public class ServiceMotionSense extends Service {
      */
     @Override
     public void onDestroy() {
+        if(memeLib.isDataReceiving())
+            memeLib.stopDataReport();
+        if(memeLib.isScanning())
+            memeLib.stopScan();
+        if(memeLib.isConnected())
+            memeLib.disconnect();
         Logger.d("Service: onDestroy()...");
-        if (ConfigurationManager.isForegroundApp())
             stopForegroundService();
-        unsubscribe();
         try {
             unregisterReceiver(mReceiver);
         } catch (Exception ignored) {
         }
         super.onDestroy();
-    }
-
-    /**
-     * Unsubscribes the observable.
-     */
-    void unsubscribe() {
-        if (subscription != null && !subscription.isUnsubscribed())
-            subscription.unsubscribe();
-        subscription = null;
     }
 
     /**
@@ -358,16 +380,14 @@ public class ServiceMotionSense extends Service {
                 switch (state) {
                     case BluetoothAdapter.STATE_OFF:
                     case BluetoothAdapter.STATE_TURNING_OFF:
-                        ErrorNotify.handle(ServiceMotionSense.this, ErrorNotify.BLUETOOTH_OFF);
-                        unsubscribe();
+                        ErrorNotify.handle(ServiceJinsMeme.this, ErrorNotify.BLUETOOTH_OFF);
                         stopSelf();
                         break;
                 }
             } else if (action != null && action.equals(ACTION_LOCATION_CHANGED)) {
                 LocationManager locationManager = (LocationManager) context.getSystemService(LOCATION_SERVICE);
                 if (locationManager != null && !locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER)) {
-                    ErrorNotify.handle(ServiceMotionSense.this, ErrorNotify.GPS_OFF);
-                    unsubscribe();
+                    ErrorNotify.handle(ServiceJinsMeme.this, ErrorNotify.GPS_OFF);
                     stopSelf();
                 }
             }
@@ -376,7 +396,6 @@ public class ServiceMotionSense extends Service {
 
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
-        if (ConfigurationManager.hasDefault() && ConfigurationManager.isForegroundApp())
             startForegroundService();
         return super.onStartCommand(intent, flags, startId);
     }
@@ -413,6 +432,83 @@ public class ServiceMotionSense extends Service {
 
         // Stop the foreground service.
         stopSelf();
+    }
+    final private MemeConnectListener memeConnectListener = new MemeConnectListener() {
+        @Override
+        public void memeConnectCallback(boolean b) {
+            Log.d("abc","memeConnectCallback b="+b);
+            memeLib.startDataReport(memeRealtimeListener);
+        }
+
+        @Override
+        public void memeDisconnectCallback() {
+            Log.d("abc","memeDisConnectCallback");
+        }
+    };
+    private final MemeRealtimeListener memeRealtimeListener = new MemeRealtimeListener() {
+        @Override
+        public void memeRealtimeCallback(final MemeRealtimeData memeRealtimeData) {
+            Log.d("abc", "new data"+memeRealtimeData.getAccX()+" "+memeRealtimeData.getAccY()+" "+memeRealtimeData.getAccZ());
+            DataTypeDoubleArray d = new DataTypeDoubleArray(DateTime.getDateTime(), new double[]{memeRealtimeData.getAccX(), memeRealtimeData.getAccY(), memeRealtimeData.getAccZ()});
+            dataKitManager.insert(DataSourceType.ACCELEROMETER, d);
+            broadCast(DataSourceType.ACCELEROMETER, d);
+             d = new DataTypeDoubleArray(DateTime.getDateTime(), new double[]{memeRealtimeData.getRoll(), memeRealtimeData.getPitch(), memeRealtimeData.getYaw()});
+            dataKitManager.insert(DataSourceType.GYROSCOPE, d);
+            broadCast(DataSourceType.GYROSCOPE, d);
+            d = new DataTypeDoubleArray(DateTime.getDateTime(), new double[]{memeRealtimeData.getEyeMoveUp()});
+            dataKitManager.insert(DataSourceType.EYE_MOVEMENT_UP, d);
+            broadCast(DataSourceType.EYE_MOVEMENT_UP, d);
+            d = new DataTypeDoubleArray(DateTime.getDateTime(), new double[]{memeRealtimeData.getEyeMoveDown()});
+            dataKitManager.insert(DataSourceType.EYE_MOVEMENT_DOWN, d);
+            broadCast(DataSourceType.EYE_MOVEMENT_DOWN, d);
+            d = new DataTypeDoubleArray(DateTime.getDateTime(), new double[]{memeRealtimeData.getEyeMoveLeft()});
+            dataKitManager.insert(DataSourceType.EYE_MOVEMENT_LEFT, d);
+            broadCast(DataSourceType.EYE_MOVEMENT_RIGHT, d);
+            d = new DataTypeDoubleArray(DateTime.getDateTime(), new double[]{memeRealtimeData.getEyeMoveRight()});
+            dataKitManager.insert(DataSourceType.EYE_MOVEMENT_RIGHT, d);
+            broadCast(DataSourceType.EYE_MOVEMENT_RIGHT, d);
+            d = new DataTypeDoubleArray(DateTime.getDateTime(), new double[]{memeRealtimeData.getBlinkSpeed()});
+            dataKitManager.insert(DataSourceType.BLINK_SPEED, d);
+            broadCast(DataSourceType.BLINK_SPEED, d);
+            d = new DataTypeDoubleArray(DateTime.getDateTime(), new double[]{memeRealtimeData.getBlinkStrength()});
+            dataKitManager.insert(DataSourceType.BLINK_STRENGTH, d);
+            broadCast(DataSourceType.BLINK_STRENGTH, d);
+            d = new DataTypeDoubleArray(DateTime.getDateTime(), new double[]{memeRealtimeData.getPowerLeft()});
+            dataKitManager.insert(DataSourceType.POWER_LEFT, d);
+            broadCast(DataSourceType.POWER_LEFT, d);
+            d = new DataTypeDoubleArray(DateTime.getDateTime(), new double[]{memeRealtimeData.getFitError().getId()});
+            dataKitManager.insert(DataSourceType.FIT_ERROR, d);
+            broadCast(DataSourceType.FIT_ERROR, d);
+
+        }
+    };
+    private void broadCast(String type, DataTypeDoubleArray d){
+        Intent intent = new Intent(INTENT_DATA);
+        intent.putExtra(DataSource.class.getSimpleName(), type);
+        intent.putExtra(DataType.class.getSimpleName(), d);
+        LocalBroadcastManager.getInstance(ServiceJinsMeme.this).sendBroadcast(intent);
+    }
+    Runnable r = new Runnable() {
+        @Override
+        public void run() {
+            startScan();
+        }
+    };
+    private void startScan() {
+        memeLib.setMemeConnectListener(memeConnectListener);
+        MemeStatus status = memeLib.startScan(new MemeScanListener() {
+            @Override
+            public void memeFoundCallback(String address) {
+                String deviceId = ConfigurationManager.getDeviceId();
+                if(address.equals(deviceId))
+                    memeLib.stopScan();
+                memeLib.connect(address);
+            }
+        });
+        if(status==MemeStatus.MEME_CMD_INVALID)
+            h.postDelayed(r, 1000);
+        Log.d("abc", "status = " + status.toString());
+
     }
 
 }
