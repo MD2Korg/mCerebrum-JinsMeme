@@ -478,7 +478,7 @@ public class ServiceJinsMeme extends Service {
             broadCast(DataSourceType.POWER_LEFT, d);
             d = new DataTypeDoubleArray(DateTime.getDateTime(), new double[]{memeRealtimeData.getFitError().getId()});
             dataKitManager.insert(DataSourceType.FIT_ERROR, d);
-            broadCast(DataSourceType.FIT_ERROR, d);
+            broadCast(DataSourceType.FIT_ERROR, d); 
 
         }
     };
